@@ -1,0 +1,60 @@
+services:
+  nginx:
+    container_name: nginx
+    image: nginx:latest
+    build: ./backend/nginx
+    ports:
+      - "80:80"
+    volumes:
+      - tmp_volume:/web1/tmp
+    depends_on:
+      - web1
+  web1:
+    container_name: web1
+    image: web1:latest
+    build:
+      context: ./backend/web1
+      dockerfile: Dockerfile.dev
+    env_file:
+      - ./backend/web1/settings/.env
+    volumes:
+      - ./backend/web1:/web1
+      - tmp_volume:/web1/tmp
+    ports:
+      - 1111:1111  
+    depends_on:
+      - db
+    tty: true
+    stdin_open: true
+    command: >
+      bash -c "
+        bundle install &&
+        rails db:migrate &&
+        rdbg -n --open --host 0.0.0.0 --port 1111 -c -- bundle exec pumactl start
+      "
+  db:
+    container_name: mysql
+    image: mysql:latest
+    env_file: ./db/conf/.env
+    volumes:
+      - ./db/mysql_volume:/var/lib/mysql
+    ports:
+      - "3306:3306"
+    restart: always
+  phpmyadmin:
+    container_name: phpmyadmin
+    image: phpmyadmin:latest
+    restart: always
+    depends_on:
+      - db
+    env_file:
+      - ./phpmyadmin/conf/.env  
+    ports:
+      - "8080:80"
+
+volumes:
+  tmp_volume:
+    driver: local
+    driver_opts:
+      type: tmpfs
+      device: tmpfs

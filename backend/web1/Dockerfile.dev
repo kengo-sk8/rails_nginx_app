@@ -1,0 +1,38 @@
+# ベースイメージを指定
+ARG RUBY_VERSION=3.4.1
+FROM ruby:${RUBY_VERSION}-slim-bookworm
+
+# 環境変数の設定
+ENV LANG=C.UTF-8 \
+    TZ=Asia/Tokyo \
+    RUBY_YJIT_ENABLE=1 \
+    RAILS_ENV=development \
+    APP_ROOT_PATH=/web1
+
+# 必要なパッケージをインストール
+RUN apt-get update && apt-get install -y \
+    build-essential \
+    libgmp-dev \
+    libssl-dev \
+    libmariadb-dev-compat \
+    curl \
+    git \
+    && rm -rf /var/lib/apt/lists/*
+
+# 作業ディレクトリを設定
+WORKDIR ${APP_ROOT_PATH}
+
+# Gemfile と Gemfile.lock をコピーし、依存関係をインストール
+COPY Gemfile Gemfile.lock ${APP_ROOT_PATH}/
+RUN bundle install
+
+# プロジェクトのソースコードをコピー
+COPY . ${APP_ROOT_PATH}/
+
+# エントリポイントスクリプトをコピーし、実行可能にする
+COPY settings/entrypoint.sh /usr/bin/
+RUN chmod +x /usr/bin/entrypoint.sh
+ENTRYPOINT ["entrypoint.sh"]
+
+# Nginxを使用す際に、アプリケーションを起動するコマンド
+# CMD ["bundle", "exec", "puma", "-C", "config/puma.rb"]

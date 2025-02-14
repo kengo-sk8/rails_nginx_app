@@ -1,0 +1,10 @@
+# db関連
+mysql_volume
+
+# .env関連
+db/conf/.env
+phpmyadmin/conf/.env
+backend/web1/settings/.env
+
+# その他
+.DS_Store
