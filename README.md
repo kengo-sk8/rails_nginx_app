@@ -47,4 +47,4 @@ docker compose up -d
 ```
 
 # 構築の詳細情報
-- [ローカル環にて、Docker + Docker compose + Rails8 + Nginx + MySQL8の環境を構築]()
+- [ローカル環にて、Docker + Docker compose + Rails8 + Nginx + MySQL8の環境を構築](https://qiita.com/kengo-sk8/items/9b5ecd614a413412da75)
